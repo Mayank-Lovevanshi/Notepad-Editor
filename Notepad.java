@@ -1,5 +1,11 @@
 //package com.fastLearner.gui;
 
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import javax.swing.JOptionPane;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -24,7 +30,7 @@ JMenuItem font,fontColor,textAreaColor;
 JTextArea textarea;
 String title = "Untitled - Notepad";
 
-public Notepad()
+public Notepad() throws Exception
 {
 try
 {
@@ -50,6 +56,7 @@ file.add(neww);
 
 open = new JMenuItem("Open");
 open.addActionListener(this);
+open.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,InputEvent.META_DOWN_MASK));
 file.add(open);
 
 save = new JMenuItem("Save");
@@ -136,6 +143,7 @@ format.add(textAreaColor);
 menuBar.add(format);
 
 // -------------------added format attributes------------------
+
 // -----------adding help menu----------------
 help = new JMenu("Help");
 menuBar.add(help);
@@ -154,18 +162,123 @@ jf.add(scrollPane);
 
 jf.setVisible(true);
 }
+
+//********************
+
 public void actionPerformed(ActionEvent e)
 {
+if(e.getSource()==exit)
+{
+exit();
+}
+
 if(e.getSource()==neww)
 {
 textarea.setText("");
 }
+if(e.getSource()==save)
+{
+try
+{
+saveAs();
+}
+catch(Exception err)
+{
+System.out.println(err);
+}
+}
+if(e.getSource()==open)
+{
+System.out.println("Open button clicked");
+try
+{
+openFunc();
+}
+catch(Exception err)
+{
+System.out.println(err);
+}
+}
+}
 
+
+public void exit()
+{
+
+int result = JOptionPane.showConfirmDialog(jf,"Do you want to save this file");
+
+if(result==JOptionPane.YES_OPTION)
+{
+try
+{
+saveAs();
+}
+catch(Exception err)
+{
+System.out.println(err);
+}
+}
+
+}
+
+public void saveAs() throws Exception
+{
+JFileChooser jfc = new JFileChooser();
+int i = jfc.showSaveDialog(jf);
+
+
+if(i==0)
+{
+String text = textarea.getText();
+File f = jfc.getSelectedFile();
+FileOutputStream fos = new FileOutputStream(f);
+fos.write(text.getBytes());
+setTitle(f.getName());
+}
+else
+{
+JOptionPane.showMessageDialog(jf,"File Not Saved","Warning",JOptionPane.WARNING_MESSAGE);
+}
+
+System.out.println("i "+i);
+}
+
+public void openFunc() throws Exception
+{
+System.out.println("Open function called");
+JFileChooser jfc = new JFileChooser();
+
+int result = jfc.showOpenDialog(jf);
+File f = jfc.getSelectedFile();
+if(result==0)
+{
+FileInputStream fis = new FileInputStream(f); 
+int i;
+StringBuffer data= new StringBuffer();
+setTitle(f.getName());
+while((i=fis.read())!=-1)
+{
+data.append((char)i);
+}
+textarea.setText(data.toString());
+}
+}
+
+public void setTitle(String title)
+{
+jf.setTitle(title);
 }
 
 public static void main(String args[])
 {
-new Notepad();
+try
+{
 
+new Notepad();
+}
+catch(Exception e)
+{
+System.out.println(e);
+}
 }
 }
