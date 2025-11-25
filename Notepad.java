@@ -29,7 +29,8 @@ JMenuItem cut,copy,paste,replace,dateTime;
 JMenuItem font,fontColor,textAreaColor;
 JTextArea textarea;
 String title = "Untitled - Notepad";
-
+static boolean fileSaveStatus = false;
+File currentFile = null;
 public Notepad() throws Exception
 {
 try
@@ -171,12 +172,20 @@ if(e.getSource()==exit)
 {
 exit();
 }
-
+if(e.getSource()==save)
+{
+save();
+}
 if(e.getSource()==neww)
 {
+int result = JOptionPane.showConfirmDialog(jf,"Do you want to open new File?");
+if(result==0)
+{
+fileSaveStatus = false;
 textarea.setText("");
 }
-if(e.getSource()==save)
+}
+if(e.getSource()==saveAs)
 {
 try
 {
@@ -201,12 +210,23 @@ System.out.println(err);
 }
 }
 
+public void save()
+{
+try
+{
+String data = textarea.getText();
+FileOutputStream fos = new FileOutputStream(currentFile);
+fos.write(data.getBytes());
+}
+catch(Exception err)
+{
+System.out.println(err);
+}
+}
 
 public void exit()
 {
-
 int result = JOptionPane.showConfirmDialog(jf,"Do you want to save this file");
-
 if(result==JOptionPane.YES_OPTION)
 {
 try
@@ -249,13 +269,13 @@ System.out.println("Open function called");
 JFileChooser jfc = new JFileChooser();
 
 int result = jfc.showOpenDialog(jf);
-File f = jfc.getSelectedFile();
+currentFile = jfc.getSelectedFile();
 if(result==0)
 {
-FileInputStream fis = new FileInputStream(f); 
+FileInputStream fis = new FileInputStream(currentFile); 
 int i;
 StringBuffer data= new StringBuffer();
-setTitle(f.getName());
+setTitle(currentFile.getName());
 while((i=fis.read())!=-1)
 {
 data.append((char)i);
